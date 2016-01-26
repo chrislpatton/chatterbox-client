@@ -1,31 +1,62 @@
 // YOUR CODE HERE:
+var app;
 
 $(document).on('ready', function(){
   
-  window.app = {
+  app = {
   server: 'https://api.parse.com/1/classes/chatterbox',
-  friends: {},
+  username: 'test',
+  roomname: 'lobby'
+  friends: [],
+  messages: [],
+  
+  
+  app.init =  function(){
+    app.username = window.location.search.substr(10);
+    
+    app.fetch();
+    
+  },
+  
+  app.fetch = function(){
+    $.ajax({
+    url: app.server,
+    type: 'GET',
+    contentType: 'application/json',
+    data: {order: '-createdAt'},
+    
+    success: function (data) {
+      // process room data
+      app.populateRooms(data.results);
+      // process the chat data and display
+      app.populateMessages(data.results);
+    error: function (reason) {
+      console.error('chatterbox: Failed to send message. Error: ', reason);
+      }
+    });
+  },
+  
+  
+  addRoom: function(roomName){
+    $('#roomSelect').append('<option>' + roomName + '</option>');  
+  },
   
   clearMessages: function(){
     $('#chats').children().remove();
   },
   
   addMessage: function(username, text, roomName){
-    $('#chats').append('<p>' + username + text + roomName + '</p>');  
-  },
-  
-  addRoom: function(roomName){
-    $('#roomSelect').append('<p>' + roomName + '</p>');  
+    $('#chats').append('<p>' + messages.username[1] + messages.text[1] + messages.roomname[1] + '</p>');  
   },
   
   addFriend: function(friend){
     // var isFriend = false;
-    $('.username').on('click', function(){
-      app.friends[friend] = true
+  this.friends.push(friend)
+    //   app.friends[friend] = true
       // isFriend = !()
         // isFriend = true;
       // $.('this').('friend')
-    });  
+   // });  
   },
   //var friends = {};
   
@@ -37,9 +68,6 @@ $(document).on('ready', function(){
   
   };
   
-  app.init =  function(){
-    this.fetch();
-  };
   
   //var JSONobj = JSON.stringify(obj);
   
@@ -61,19 +89,6 @@ $(document).on('ready', function(){
     });
   };
   
-  app.fetch = function(){
-    $.ajax({
-    url: app.server,
-    type: 'GET',
-    contentType: 'application/json',
-    success: function (data) {
-      console.log('chatterbox: Message sent. Data: ', data);
-    },
-    error: function (data) {
-      console.error('chatterbox: Failed to send message. Error: ', data);
-      }
-    });
-  };
   
   var message = {
       username: 'Mel Brooks',
