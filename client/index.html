@@ -7,15 +7,31 @@
 
     <!-- dependencies -->
     <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/underscore/underscore-min.js"></script>
     <!-- your scripts -->
     <script src="env/config.js"></script>
     <script src="scripts/app.js"></script>
+    <script> $(document).on('ready',function(){
+      app.init();
+    });
+    </script>
   </head>
   <body>
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
-      <h1>test to see if working</h1>
+       <div class='spinner'><img src="./images/spiffygif_46x46.gif"></div>
+        <div id="rooms"> 
+          Room:
+          <select>
+            
+          </select>
+        </div>
+        
+        <form action="#" id="send" method="post">
+          <input type='text' name='message' id='message' autofocus placeholder="Let's Chat"></input>
+          <input type="submit" neame='submit'></input>
+        </form>
     </div>
   </body>
 </html>
