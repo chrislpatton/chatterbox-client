@@ -5,31 +5,22 @@ $(document).on('ready', function(){
   
 
   app = {
-    
+  
+  //===============================================================
+  //  app properties
+  // ==============================================================
     username: 'anonymous',
     
     chatroom: 'lobby',
     
     server: 'https://api.parse.com/1/classes/chatterbox',
-      
-    init : function(){
-      app.username = window.location.search.substr(10);//comes from the congig.js file
-      
-      //cache selectors 
-      app.$main = $('#main');
-      app.$message = $('#message');
-      app.$chats = $('#chats');
-      app.$roomSelect = $('#roomSelect');
-      app.$send = $('#send');
-      
-      app.$roomSelect.on('change', app.storeRoom)
-      app.$send.on('submit', app.handleSubmit);
-     
-      app.fetch();  
-      setInterval(app.fetch, 5000);
-      
-    },
     
+    friends:{},
+      
+  
+  //===============================================================
+  //  app methods---- get messages and displays them to the dom
+  // ==============================================================  
     fetch: function(){
       
       $.ajax({
@@ -52,6 +43,52 @@ $(document).on('ready', function(){
       });
     },
     
+    addMessage: function(data){
+      if (!data.roomname){
+        data.roomname = 'lobby';
+      }
+      if (data.roomname === app.chatroom){
+        var $chat = $('<div class="chat"></div>');
+        
+        var $username = $('<span class="username"></span>');
+        $username.text(data.username + ":")
+        .attr('data-username',data.username)
+        .attr('data-roomname',data.roomname)
+        .appendTo($chat);
+        
+        if (app.friends[data.username] === true){
+          $username.addClass('friends')
+        }
+        
+        var $message = $('<br/><span></span>');
+        $message.text(data.text)
+        .appendTo($chat);
+        
+        var $timeStamp = $('</br><span></span>');
+        var date = new Date(data.createdAt);
+        $timeStamp.text(date)
+        .appendTo($chat);
+        
+        app.$chats.append($chat);
+      }
+    },
+
+    clearMessages: function(){
+      app.$chats.empty();
+    },
+
+    getMessages: function(results){
+      app.clearMessages();
+      if (Array.isArray(results)){ 
+       _.each(results, app.addMessage); 
+      }
+    },
+
+  
+  //===============================================================
+  //  app methods----- retrieve room data and append new rooms
+  // ==============================================================
+  
     getRoomData: function(results){
       app.$roomSelect.html('<option value="__newRoom">New Room</option><option value="" selected>Lobby</option>');
       
@@ -102,42 +139,11 @@ $(document).on('ready', function(){
     },
     
     
-    clearMessages: function(){
-      app.$chats.empty();
-    },
+  
+  //===============================================================
+  //  app methods--- to send messages to chatterbox 
+  // ==============================================================  
     
-    getMessages: function(results){
-      app.clearMessages();
-      if (Array.isArray(results)){ 
-       _.each(results, app.addMessage); 
-      }
-    },
-    
-    addMessage: function(data){
-      if (!data.roomname){
-        data.roomname = 'lobby';
-      }
-      if (data.roomname === app.chatroom){
-        var $chat = $('<div class="chat"></div>');
-        
-        var $username = $('<span class="username"></span>');
-        $username.text(data.username + ":")
-        .attr('data-username',data.username)
-        .attr('data-roomname',data.roomname)
-        .appendTo($chat);
-        
-        var $message = $('<br/><span></span>');
-        $message.text(data.text)
-        .appendTo($chat);
-        
-        var $timeStamp = $('</br><span></span>');
-        var date = new Date(data.createdAt);
-        $timeStamp.text(date)
-        .appendTo($chat);
-        
-        app.$chats.append($chat);
-      }
-    },
     send: function(data){
       
       $.ajax({
@@ -174,11 +180,47 @@ $(document).on('ready', function(){
     },
     
     
-    
-    addFriend: function(){
-      
+ 
+  //===============================================================
+  //  app method-- this allows user to add friend 
+  // ==============================================================   
+    addFriend: function(evt){
+      var username = $(evt.currentTarget)
+        .attr('data-username');
+        
+        if(username !== undefined){
+         
+        app.friends[username] = true;
+        
+        var selector = '[data-username="' + username + '"]';
+        
+        $(selector).addClass('friends');
+        }
     },
       
+ 
+  //===============================================================
+  //  app init method, gets called in index.html, 
+  // ==============================================================     
+    init : function(){
+      app.username = window.location.search.substr(10);//comes from the congig.js file
+      
+      //cache selectors 
+      app.$main = $('#main');
+      app.$message = $('#message');
+      app.$chats = $('#chats');
+      app.$roomSelect = $('#roomSelect');
+      app.$send = $('#send');
+      
+      app.$roomSelect.on('change', app.storeRoom)
+      app.$send.on('submit', app.handleSubmit);
+      app.$main.on('click', '.username', app.addFriend);
+     
+      app.fetch();  
+      setInterval(app.fetch, 5000);
+      
+    },
     
   };
 });
+ 
